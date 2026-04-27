@@ -3,36 +3,6 @@
 #include <string.h>
 
 
-static char null_check(void * s)
-{
-    char ret=1;
-    if(s==NULL)
-    {
-        ret=0;
-    }
-    else
-    {
-
-    }
-    return ret;
-}
-
-
-int str_len(char str[]){
-    int counter=0;
-    if(null_check(str))
-    {
-
-        while(*(str+counter)!=NULL)
-        {
-            counter++;
-        }
-    }
-
-    return counter;
-}
-
-
 static int min(int first,int second){
     int ret=0;
     if(first>second)
@@ -46,77 +16,52 @@ static int min(int first,int second){
 
 void *memchr(const void *str, int c, size_t n){
 
-    char *ret=NULL;
-
-    if(null_check(str))
+    const unsigned char *srch = str;
+    for(size_t i = 0; i < n ; i++)
     {
-        char *srch=str;
-        for(int i=0;i<n;i++)
-        {
-            if(*(srch+i)==(char)c)
-            {
-                ret=(srch+i);
-                break;
-            }
-            else
-            {
-
-                continue;
-            }
-        }
+        if(*(srch+i)==(unsigned char)c)
+            return (void*)(srch+i);
     }
-    else{
-
-    }
-
-
-    return ret;
-
+    return NULL;
 }
 
 
 int memcmp(const void *str1, const void *str2, size_t n){
 
-    int ret=0;
+    unsigned char *s1=(unsigned char*)str1;
+    unsigned char *s2=(unsigned char*)str2;
 
-    if(null_check(str1)&&null_check(str2))
+    for(size_t i=0;i<n;i++)
     {
-        for(int i=0;i<n;i++)
+        if(s1[i]!=s2[i])
         {
-            if(*((char*)str1+i)==*((char*)str2+i))
-            {
-                continue;
-            }
-            else
-            {
-                if(*((char*)str1+i)>*((char*)str2+i))
-                    ret=1;
-                else
-                    ret=-1;
-                break;
-
-            }
-
+            return s1[i] - s2[i];
         }
     }
+    return 0;
+}
 
-    else{}
+void *memset(void *str, int c, size_t n){
 
-
-    return ret;
+    unsigned char *s=(unsigned char*)str;
+    
+    for(size_t i=0;i<n;i++)
+    {
+        s[i]=c;
+    }
+    return str;
 }
 
 
 void *memcpy(void *dest, const void * src, size_t n){
 
-    if(null_check(dest)&&null_check(src))
+    const unsigned char *s=(unsigned char*)src;
+    unsigned char *d=(unsigned char*)dest;
+
+    for(size_t i=0;i<n;i++)
     {
-            for(int i=0;i<n;i++)
-        {
-            *((char*)dest+i)=*((char*)src+i);
-        }
+        d[i]=s[i];
     }
-    else{}
 
     return dest;
 }
@@ -124,232 +69,150 @@ void *memcpy(void *dest, const void * src, size_t n){
 
 void *memmove(void *dest, const void * src, size_t n){
 
-    if(null_check(dest)&&null_check(src))
+    unsigned char *d=(unsigned char*)dest;
+    const unsigned char *s=(unsigned char*)src;
+
+    if(d<s)
     {
-        char tmp[n];
-        for(int i=0;i<n;i++)
+        for(size_t i=0;i<n;i++)
         {
-            tmp[i]=*((char*)src+i);
+            d[i]=s[i];
         }
-        for(int i=0;i<n;i++)
+    }
+    else if(d>s)
+    {
+         for(size_t i=n-1;i>=0;i--)
         {
-            *((char*)dest+i)=tmp[i];
+            d[i]=s[i];
         }
     }
     return dest;
 }
 
 
-void *memset(void *str, int c, size_t n){
+size_t str_len(const char * str){
+    size_t counter=0;
+    while(str++!=NULL)
+        counter++;
 
-    if(null_check(str))
-    {
-        for(int i=0;i<n;i++)
-        {
-            *((char*)str+i)=c;
-        }
-
-    }
-    else{}
-    return str;
+    return counter;
 }
 
 
 char *strcat(char *dest, const char *src){
 
-    if(null_check(dest)&&null_check(src))
-    {
-        int counter=str_len(dest);
+    char *d = dest;
+    while(*d!='\0')
+    d++;
+    while((*d++=*src++)!='\0');
+    return dest;
+}
 
-        while(*src!=NULL)
-        {
-            *(dest+counter)=*src++;
-            counter++;
-        }
+char *strncat(char *dest, const char *src,size_t count){
+
+    char *d = dest;
+    while(*d!='\0')
+    d++;
+    while(count>0 && *src!='\0')
+    {
+        *d++=*src++;
+        count--;
     }
-    else{}
+    *d='\0';
     return dest;
 }
 
 
 char *strchr(const char *str, int c){
-
     char *ret=NULL;
-
-    if(null_check(str))
+    char ch=(char)c;
+    while(*str!=c&&*str!='\0')
     {
-        for(int i=0;i<str_len(str);i++)
-        {
-            if(*(str+i)==(char)c)
-            {
-                ret=(str+i);
-                break;
-            }
-            else
-            {
-
-                continue;
-            }
-        }
+        str++;
     }
-    else{
-
-    }
-
-
+    if(*str==c)
+        ret=str;
     return ret;
-
 }
 
+char *strrchr(const char *str, int c)
+{
+    const char* ret=NULL;
+    do
+    {
+        if(*str==(char)c)
+            ret=str;
+    }while(*str++!='\0');
+    return(char *) ret;
+}
 
 int strcmp(const char *str1, const char *str2){
 
-        int ret=0;
-
-    if(null_check(str1)&&null_check(str2))
+    while(*str1 == *str2 && *str1!='\0')
     {
-        int len1=str_len(str1);
-        int len2=str_len(str2);
-
-        for(int i=0;i<min(len1,len2);i++)
-        {
-            if(*(str1+i)==*(str2+i))
-            {
-                continue;
-            }
-            else
-            {
-                if(*(str1+i)>*(str2+i))
-                    ret=1;
-                else
-                    ret=-1;
-                break;
-
-            }
-
-        }
+        str1++;
+        str2++;
     }
-
-    else{}
-
-
-    return ret;
+    return (unsigned char)*str1-(unsigned char)*str2;
 }
 
 
 int strncmp(const char *str1, const char *str2, size_t n){
 
-    int ret=0;
-
-    if(null_check(str1)&&null_check(str2))
+    while(n > 0 && *str1 == *str2 && *str1!='\0')
     {
-        for(int i=0;i<n;i++)
-        {
-            if(*(str1+i)==*(str2+i))
-            {
-                continue;
-            }
-            else
-            {
-                if(*(str1+i)>*(str2+i))
-                    ret=1;
-                else
-                    ret=-1;
-                break;
-
-            }
-
-        }
+        str1++;
+        str2++;
+        n--;
     }
 
-    else{}
-
-
-    return ret;
+    if(n==0)
+        return 0;
+    return (unsigned char)*str1-(unsigned char)*str2;
 }
 
 
 int strcoll(const char *str1, const char *str2){
-
+    //ignoring locale for now
     return strcmp(str1,str2);
 }
 
 
 char *strcpy(char *dest, const char *src){
 
-    if(null_check(dest)&&null_check(src))
-    {
-            for(int i=0;i<str_len(src);i++)
-        {
-            *(dest+i)=*(src+i);
-        }
-    }
-    else{}
-
+    const char *s = src;
+    char *d = dest;
+    while((*d++=*s++)!='\0');
     return dest;
-
 }
 
 
 char *strncpy(char *dest, const char *src, size_t n){
 
-    if(null_check(dest)&&null_check(src))
+    const char *s=src;
+    char *d=dest;
+    size_t cnt=0;
+    while(cnt<n && s[cnt]!='\0')
     {
-    return memcpy(dest,src,n);
+        d[cnt]=s[cnt];
+        cnt++;
     }
-    else{}
-}
-
-
-size_t strcspn(const char *str1, const char *str2){
-
-    int len1=str_len(str1);
-    int len2=str_len(str2);
-    int flag=0;
-    int ret=-1;
-
-    if(null_check(str1)&&null_check(str2))
+    while(cnt<n)
     {
-    for(int i=0;i<len1;i++)
-    {
-        char tmp=*(str1+i);
-        for(int n=0;n<len2;n++)
-        {
-            if(*(str2+n)==tmp)
-            {
-                flag++;
-                break;
-
-            }
-
-        }
-        if(flag>0)
-        {
-            ret=i;
-            break;
-        }
+        d[cnt++]='\0';
+        cnt++;
     }
-    }
-    else{}
-
-
-    return ret;
-
+    return dest;
 }
 
 
 char *strpbrk(const char *str1, const char *str2){
 
-    char* ret=NULL;
-    if(null_check(str1)&&null_check(str2))
-    {
-    int s=strcspn(str1,str2);
-    if (s!=-1)
-        ret=str1+s;
-    }
-    else{}
+    size_t s=strcspn(str1,str2);
+    if (str1[s]=='\0')
+        return NULL;
 
-    return ret;
+    return (char*)str1+s;
 }
 
 
@@ -359,150 +222,103 @@ char *strerror1(int errnum){
 }
 
 
-char *strrchr(const char *str, int c){
+size_t strspn(const char *str1, const char *str2)
+{
+    const unsigned char* s1=(const unsigned char*) str1;
+    const unsigned char* s2=(const unsigned char*) str2;
+    unsigned char table[256]={0};
+    while (*s2)
+        table[*s2++]=1;
 
-    int len=str_len(str)-1;
-    char* ret=NULL;
-    while(len>=0)
+    size_t count=0;
+    while(table[*s1]==1)
     {
-        if(*(str+len)==c)
-        {
-            ret=str+len;
-            break;
-        }
-        len--;
+        count++;
+        s1++;
     }
 
-    return ret;
+    return count;
 }
 
+size_t strcspn(const char *str1, const char *str2){
 
-size_t strspn(const char *str1, const char *str2){
+    const unsigned char* s1=(const unsigned char*) str1;
+    const unsigned char* s2=(const unsigned char*) str2;
+    unsigned char table[256]={0};
+    while (*s2)
+        table[*s2++]=1;
 
-    int len1=str_len(str1);
-    int len2=str_len(str2);
-    int ret=0;
-
-    if(null_check(str1)&&null_check(str2))
+    size_t count=0;
+    while(table[*s1]==0)
     {
-        for(int i=0;i<len1;i++)
-        {
-            char tmp=*(str1+i);
-            int flag=0;
-            for(int n=0;n<len2;n++)
-            {
-                if(*(str2+n)==tmp)
-                {
-                    ret++;
-                    flag++;
-                    break;
-                }
-
-            }
-            if(flag==0)
-            {
-                break;
-            }
-        }
+        count++;
+        s1++;
     }
-    else{}
 
-
-    return ret;
+    return count;
 }
-
 
 char *strstr(const char *haystack, const char *needle){
 
-    char *ret=NULL;
-    if(null_check(haystack)&&null_check(needle))
-    {
-        int len=str_len(needle);
-        int flag=0;
-        haystack=strchr(haystack, *needle);
-        if(haystack!=NULL)
-        {
-            for(int i=1;i<len;i++)
-            {
-                haystack++;
-                if(*haystack!=*(needle+i))
-                {
-                    break;
-                }
-                else if(i==len-1)
-                {
-                    ret=haystack-i;
-                }
-            }
-            if(ret==NULL&&haystack!=NULL)
-            {
-                ret=strstr(haystack,needle);
-            }
-        }
-    }
-    else{}
+    size_t sz= str_len(needle);
 
-    return ret;
+    if(*needle=='\0')
+        return (char*)haystack;
+    while(*haystack!='\0')
+    {
+
+        if(*haystack==*needle)
+        {
+            size_t r=strncmp(haystack,needle,sz);
+            if(r==0)
+                break;
+        }
+        haystack++;
+        
+    }
+    if(*haystack=='\0')
+        return NULL;
+    return (char*)haystack;
 }
 
 
 char *strtok(char *str, const char *delim){
 
-    int len=str_len(str);
-    static char *ret=NULL;
-    static int s=0;
-    int count=0;
-    if(s==-1)
-        ret=NULL;
-    else if(null_check(str)&&null_check(delim))
+    static char* s=NULL;
+    if (str)
+        s=str;
+
+    if(s==NULL)
+        return NULL;
+    
+    unsigned char table[256]={0};
+    while (*delim)
+        table[*delim++]=1;
+    
+    while(*s!='\0' && table[(unsigned char)*s]==1)
+        s++;
+    
+    if(*s=='\0')
+        return NULL;
+    char *start=s;
+
+    while(*s!='\0')
     {
-        while(*str==*delim)
+        if(table[(unsigned char)*s]==1)
         {
-            memmove(str,str+1,len-1);
-            *(str+len-count)=NULL;
-            count++;
+            *s++='\0';
+            break;
         }
-        len-=count;
-        s=strcspn(str,delim);
-        if(s!=-1)
-        {
-            *(str+s)=NULL;
-            ret=str;
-        }
-        else
-        {
-            ret=NULL;
-        }
-
+        s++;
+    
     }
-    else if(str==NULL&&delim!=NULL)
-    {
-
-        ret+=s+1;
-        int len2=str_len(ret);
-        while(*ret==*delim)
-        {
-            memmove(ret,ret+1,len2-1);
-            *(ret+len2-count)=NULL;
-            count++;
-        }
-        s=strcspn(ret,delim);
-        if(s!=-1)
-        {
-            *(ret+s)=NULL;
-        }
-        else
-        {
-        }
-
-    }
-
-    return ret;
+    return start;
 }
 
 
 size_t strxfrm(char *dest, const char *src, size_t n){
 
+    //skipping locale for now
     memmove(dest,src,n);
 
     return str_len(dest);
